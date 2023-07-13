@@ -1,0 +1,15 @@
+spring:
+  rabbitmq:
+    port: 5672
+
+rabbitmq:
+  queue:
+    producer:
+      nameAnalytics: analytics-builder-service-task
+      nameImport: vacancy-import-service-task
+
+  exchange:
+    name: scheduled-tasks-exchange
+
+  routing:
+    key: test_routing_key

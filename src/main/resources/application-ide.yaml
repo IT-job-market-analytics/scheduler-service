@@ -1,0 +1,10 @@
+spring:
+  rabbitmq:
+    host: localhost
+    username: analytics_service
+    password: password
+
+logging:
+  level:
+    # org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+    com.example.vacancystorageservice: DEBUG
