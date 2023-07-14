@@ -1,4 +1,4 @@
-package com.example.schedulerservice.raabitmq;
+package com.example.schedulerservice.rabbitmq;
 
 import com.example.schedulerservice.dto.VacancyImportScheduledTaskDto;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +16,7 @@ public class Producer {
     }
 
     public void sendMessage(String routingKey, VacancyImportScheduledTaskDto obj) {
-        log.info("Sending message to -> %s // with object -> %s", routingKey, obj);
         template.convertAndSend(routingKey, obj);
-        log.info("Sent DONE");
     }
 
 }
