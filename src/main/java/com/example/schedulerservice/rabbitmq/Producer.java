@@ -1,6 +1,5 @@
 package com.example.schedulerservice.rabbitmq;
 
-import com.example.schedulerservice.dto.VacancyImportScheduledTaskDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
