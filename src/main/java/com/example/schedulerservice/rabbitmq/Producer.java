@@ -15,8 +15,8 @@ public class Producer {
         this.template = template;
     }
 
-    public void sendMessage(String routingKey, VacancyImportScheduledTaskDto obj) {
-        template.convertAndSend(routingKey, obj);
+    public void sendMessage(String routingKey, Object object) {
+        template.convertAndSend(routingKey, object);
     }
 
 }

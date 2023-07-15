@@ -9,3 +9,7 @@ rabbitmq:
   routingKey:
     analyticsBuilder: analytics-builder-service-task
     vacancyImport: vacancy-import-service-task
+
+vacancyImportScheduledTaskDto:
+  pageSize:
+  pageNumber:
