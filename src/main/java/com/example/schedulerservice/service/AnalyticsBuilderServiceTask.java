@@ -9,21 +9,19 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class AnalyticsBuilderServiceTask {
-
     @Value("${rabbitmq.routingKey.analyticsBuilder}")
     private String analyticsBuilderKey;
 
-    private Producer producer;
+    private final Producer producer;
 
     public AnalyticsBuilderServiceTask(Producer producer) {
         this.producer = producer;
     }
 
-    public void send(AnalyticsBuilderServiceTaskDto object) {
-
-        log.info("Sending message with class object -> " + object.getClass().getName()
+    public void send(AnalyticsBuilderServiceTaskDto task) {
+        log.info("Sending message with class object -> " + task.getClass().getName()
                 + " // routingKey -> " + analyticsBuilderKey);
-        producer.sendMessage(analyticsBuilderKey, object);
-        log.info("Sent message with object -> " + object);
+        producer.sendMessage(analyticsBuilderKey, task);
+        log.info("Sent message with object -> " + task);
     }
 }
