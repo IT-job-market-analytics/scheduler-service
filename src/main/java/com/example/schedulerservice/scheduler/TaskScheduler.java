@@ -2,68 +2,59 @@ package com.example.schedulerservice.scheduler;
 
 import com.example.schedulerservice.dto.AnalyticsBuilderServiceTaskDto;
 import com.example.schedulerservice.dto.VacancyImportScheduledTaskDto;
-import com.example.schedulerservice.service.AnalyticsBuilderServiceTask;
-import com.example.schedulerservice.service.VacancyImportServiceTask;
+import com.example.schedulerservice.rabbitmq.Producer;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 @Component
 public class TaskScheduler {
-    private VacancyImportServiceTask vacancyImportServiceTask;
-    private AnalyticsBuilderServiceTask analyticsBuilderServiceTask;
 
-    public TaskScheduler(VacancyImportServiceTask vacancyImportServiceTask, AnalyticsBuilderServiceTask analyticsBuilderServiceTask) {
-        this.vacancyImportServiceTask = vacancyImportServiceTask;
-        this.analyticsBuilderServiceTask = analyticsBuilderServiceTask;
+    private Producer producer;
+
+    public TaskScheduler(Producer producer) {
+        this.producer = producer;
     }
+
+    @Value("${rabbitmq.routingKey.vacancyImport}")
+    private String vacancyImportKey;
+
+    @Value("${rabbitmq.routingKey.analyticsBuilder}")
+    private String analyticsBuilderKey;
+
+    @Value("${vacancyImportScheduledTaskDto.pageSize}")
+    private int pageSize;
+
+    @Value("${vacancyImportScheduledTaskDto.pageNumber}")
+    private int pageNumber;
+
+    @Value("#{'${queries}'.split(',')}")
+    private List<String> queries;
 
     ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(5);
 
-    ScheduledFuture<?> futureVacancyImport = executor.scheduleWithFixedDelay(new Runnable() {
-        @Override
-        public void run() {
+    @PostConstruct
+    public void foo() {
 
-            for (int i = 0; i < 20; i++) {
-                VacancyImportScheduledTaskDto vacancyImportScheduledTaskDto = new VacancyImportScheduledTaskDto(100, i, "Java");
-                vacancyImportServiceTask.send(vacancyImportScheduledTaskDto);
+        ScheduledFuture<?> futureVacancyImport = executor.scheduleWithFixedDelay(() -> {
+
+            for (String query : queries) {
+                for (int i = 0; i < pageNumber; i++) {
+                    VacancyImportScheduledTaskDto vacancyImportScheduledTaskDto = new VacancyImportScheduledTaskDto(pageSize, i, query);
+                    producer.sendMessage(vacancyImportKey, vacancyImportScheduledTaskDto);
+                }
             }
-        }
-    }, 0, 10, TimeUnit.SECONDS);
+        }, 0, 1, TimeUnit.HOURS);
 
-    ScheduledFuture<?> futureAnalyticsBuilder = executor.scheduleWithFixedDelay(new Runnable() {
-        @Override
-        public void run() {
+        ScheduledFuture<?> futureAnalyticsBuilder = executor.scheduleWithFixedDelay(() -> {
 
-            for (int i = 0; i < 20; i++) {
-                System.out.println("Analytics builder = " + i);
-            }
-        }
-    }, 0, 10, TimeUnit.SECONDS);
-
-//    ScheduledFuture<?> future3 = executor.scheduleWithFixedDelay(new Runnable() {
-//        @Override
-//        public void run() {
-//
-//            for (int i = 1; i < 20; i += 2) {
-//                System.out.println("i = " + i);
-//            }
-//            System.out.println("finish #3  == " + LocalDateTime.now());
-//        }
-//    }, 0, 10, TimeUnit.SECONDS);
-//
-//    ScheduledFuture<?> future4 = executor.scheduleWithFixedDelay(new Runnable() {
-//        @Override
-//        public void run() {
-//
-//            for (int i = 1; i < 20; i += 2) {
-//                System.out.println("j = " + i);
-//            }
-//            System.out.println("finish #4  == " + LocalDateTime.now());
-//        }
-//    }, 0, 10, TimeUnit.SECONDS);
-
+            AnalyticsBuilderServiceTaskDto analyticsBuilderServiceTaskDto = new AnalyticsBuilderServiceTaskDto();
+            producer.sendMessage(analyticsBuilderKey, analyticsBuilderServiceTaskDto);
+        }, 0, 1, TimeUnit.HOURS);
+    }
 }

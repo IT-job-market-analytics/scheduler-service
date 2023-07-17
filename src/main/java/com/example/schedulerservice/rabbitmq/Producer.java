@@ -17,11 +17,15 @@ public class Producer {
     }
 
     public void sendMessage(String routingKey, AnalyticsBuilderServiceTaskDto task) {
+        log.info("Sending message with object -> " + task + " // routingKey -> " + routingKey);
         template.convertAndSend(routingKey, task);
+        log.info("Sent message DONE");
+
     }
 
     public void sendMessage(String routingKey, VacancyImportScheduledTaskDto task) {
+        log.info("Sending message with object -> " + task + " // routingKey -> " + routingKey);
         template.convertAndSend(routingKey, task);
+        log.info("Sent message DONE");
     }
-
 }
