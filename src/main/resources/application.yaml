@@ -14,4 +14,8 @@ vacancyImportScheduledTaskDto:
   pageSize: 100
   pageNumber: 20
 
-queries: Java,Python,Kotlin
+application:
+  queries:
+    - Java
+    - Python
+    - Kotlin

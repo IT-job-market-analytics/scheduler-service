@@ -16,9 +16,11 @@ import java.util.concurrent.TimeUnit;
 public class TaskScheduler {
 
     private Producer producer;
+    private QueriesTaskConfig queriesTaskConfig;
 
-    public TaskScheduler(Producer producer) {
+    public TaskScheduler(Producer producer, QueriesTaskConfig queriesTaskConfig) {
         this.producer = producer;
+        this.queriesTaskConfig = queriesTaskConfig;
     }
 
     @Value("${rabbitmq.routingKey.vacancyImport}")
@@ -33,13 +35,16 @@ public class TaskScheduler {
     @Value("${vacancyImportScheduledTaskDto.pageNumber}")
     private int pageNumber;
 
-    @Value("#{'${queries}'.split(',')}")
-    private List<String> queries;
+//    @Value("#{'${queries}'.split(',')}")
+//    private List<String> queries;
 
     ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(5);
 
     @PostConstruct
     public void foo() {
+
+        List<String> queries = queriesTaskConfig.getQueries();
+        queries.forEach(System.out::println);
 
         ScheduledFuture<?> futureVacancyImport = executor.scheduleWithFixedDelay(() -> {
 
