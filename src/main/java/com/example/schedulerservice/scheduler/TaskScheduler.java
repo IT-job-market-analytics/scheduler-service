@@ -4,19 +4,19 @@ import com.example.schedulerservice.dto.AnalyticsBuilderServiceTaskDto;
 import com.example.schedulerservice.dto.VacancyImportScheduledTaskDto;
 import com.example.schedulerservice.rabbitmq.Producer;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 @Component
+@Slf4j
 public class TaskScheduler {
-
-    private Producer producer;
-    private QueriesTaskConfig queriesTaskConfig;
+    private final Producer producer;
+    private final QueriesTaskConfig queriesTaskConfig;
 
     public TaskScheduler(Producer producer, QueriesTaskConfig queriesTaskConfig) {
         this.producer = producer;
@@ -35,31 +35,37 @@ public class TaskScheduler {
     @Value("${vacancyImportScheduledTaskDto.pageNumber}")
     private int pageNumber;
 
-//    @Value("#{'${queries}'.split(',')}")
-//    private List<String> queries;
-
     ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(5);
 
     @PostConstruct
-    public void foo() {
+    public void scheduleTasks() {
+        scheduleAnalyticsBuilderTask();
+        scheduleVacancyImportTasks();
+    }
+
+    private void scheduleAnalyticsBuilderTask() {
+        log.info("Scheduling analytics builder task");
+
+        executor.scheduleWithFixedDelay(() -> {
+            AnalyticsBuilderServiceTaskDto analyticsBuilderServiceTaskDto = new AnalyticsBuilderServiceTaskDto();
+            producer.sendMessage(analyticsBuilderKey, analyticsBuilderServiceTaskDto);
+        }, 0, 1, TimeUnit.HOURS);
+    }
+
+    private void scheduleVacancyImportTasks() {
+        log.info("Scheduling vacancy import tasks");
 
         List<String> queries = queriesTaskConfig.getQueries();
-        queries.forEach(System.out::println);
 
-        ScheduledFuture<?> futureVacancyImport = executor.scheduleWithFixedDelay(() -> {
-
+        executor.scheduleWithFixedDelay(() -> {
             for (String query : queries) {
+                log.info("Creating tasks for importing pages with vacancies for query = " + query);
+
                 for (int i = 0; i < pageNumber; i++) {
                     VacancyImportScheduledTaskDto vacancyImportScheduledTaskDto = new VacancyImportScheduledTaskDto(pageSize, i, query);
                     producer.sendMessage(vacancyImportKey, vacancyImportScheduledTaskDto);
                 }
             }
-        }, 0, 1, TimeUnit.HOURS);
-
-        ScheduledFuture<?> futureAnalyticsBuilder = executor.scheduleWithFixedDelay(() -> {
-
-            AnalyticsBuilderServiceTaskDto analyticsBuilderServiceTaskDto = new AnalyticsBuilderServiceTaskDto();
-            producer.sendMessage(analyticsBuilderKey, analyticsBuilderServiceTaskDto);
         }, 0, 1, TimeUnit.HOURS);
     }
 }
