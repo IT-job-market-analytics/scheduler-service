@@ -29,8 +29,8 @@ public class TaskScheduler {
     @Value("${vacancyImportScheduledTaskDto.pageNumber}")
     private int pageNumber;
 
-    @Value("${application.schedule.delay}")
-    private int scheduleDelay;
+    @Value("${application.schedule.delayMinutes}")
+    private int scheduleDelayMinutes;
 
     ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(5);
 
@@ -46,7 +46,7 @@ public class TaskScheduler {
         executor.scheduleWithFixedDelay(() -> {
             AnalyticsBuilderServiceTaskDto analyticsBuilderServiceTaskDto = new AnalyticsBuilderServiceTaskDto();
             producer.sendMessage(analyticsBuilderServiceTaskDto);
-        }, 0, scheduleDelay, TimeUnit.MINUTES);
+        }, 0, scheduleDelayMinutes, TimeUnit.MINUTES);
     }
 
     private void scheduleVacancyImportTasks() {
@@ -63,6 +63,6 @@ public class TaskScheduler {
                     producer.sendMessage(vacancyImportScheduledTaskDto);
                 }
             }
-        }, 0, scheduleDelay, TimeUnit.MINUTES);
+        }, 0, scheduleDelayMinutes, TimeUnit.MINUTES);
     }
 }
