@@ -11,5 +11,13 @@ rabbitmq:
     vacancyImport: vacancy-import-service-task
 
 vacancyImportScheduledTaskDto:
-  pageSize:
-  pageNumber:
+  pageSize: 100
+  pageNumber: 20
+
+application:
+  schedule:
+    delayMinutes: 60
+  queries:
+    - Java
+    - Python
+    - Kotlin
