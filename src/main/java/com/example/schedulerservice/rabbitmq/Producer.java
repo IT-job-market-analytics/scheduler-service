@@ -30,8 +30,8 @@ public class Producer {
     }
 
     public void sendMessage(VacancyImportScheduledTaskDto task) {
-        log.info("Sending message with object -> " + task + " // routingKey -> " + vacancyImportKey);
+        log.debug("Sending message with object -> " + task + " // routingKey -> " + vacancyImportKey);
         template.convertAndSend(vacancyImportKey, task);
-        log.info("Message sent");
+        log.debug("Message sent");
     }
 }
