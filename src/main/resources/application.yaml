@@ -15,6 +15,8 @@ vacancyImportScheduledTaskDto:
   pageNumber: 20
 
 application:
+  schedule:
+    delay: 60
   queries:
     - Java
     - Python

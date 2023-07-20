@@ -23,17 +23,14 @@ public class TaskScheduler {
         this.queriesTaskConfig = queriesTaskConfig;
     }
 
-    @Value("${rabbitmq.routingKey.vacancyImport}")
-    private String vacancyImportKey;
-
-    @Value("${rabbitmq.routingKey.analyticsBuilder}")
-    private String analyticsBuilderKey;
-
     @Value("${vacancyImportScheduledTaskDto.pageSize}")
     private int pageSize;
 
     @Value("${vacancyImportScheduledTaskDto.pageNumber}")
     private int pageNumber;
+
+    @Value("${application.schedule.delay}")
+    private int scheduleDelay;
 
     ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(5);
 
@@ -48,8 +45,8 @@ public class TaskScheduler {
 
         executor.scheduleWithFixedDelay(() -> {
             AnalyticsBuilderServiceTaskDto analyticsBuilderServiceTaskDto = new AnalyticsBuilderServiceTaskDto();
-            producer.sendMessage(analyticsBuilderKey, analyticsBuilderServiceTaskDto);
-        }, 0, 1, TimeUnit.HOURS);
+            producer.sendMessage(analyticsBuilderServiceTaskDto);
+        }, 0, scheduleDelay, TimeUnit.MINUTES);
     }
 
     private void scheduleVacancyImportTasks() {
@@ -63,9 +60,9 @@ public class TaskScheduler {
 
                 for (int i = 0; i < pageNumber; i++) {
                     VacancyImportScheduledTaskDto vacancyImportScheduledTaskDto = new VacancyImportScheduledTaskDto(pageSize, i, query);
-                    producer.sendMessage(vacancyImportKey, vacancyImportScheduledTaskDto);
+                    producer.sendMessage(vacancyImportScheduledTaskDto);
                 }
             }
-        }, 0, 1, TimeUnit.HOURS);
+        }, 0, scheduleDelay, TimeUnit.MINUTES);
     }
 }
