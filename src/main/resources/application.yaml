@@ -19,5 +19,10 @@ application:
     delayMinutes: 60
   queries:
     - Java
-    - Python
     - Kotlin
+    - Android
+    - Javascript
+    - React
+    - PHP
+    - iOS
+    - .NET
