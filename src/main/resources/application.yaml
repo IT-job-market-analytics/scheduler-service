@@ -14,11 +14,6 @@ vacancyImportScheduledTaskDto:
   pageSize: 100
   pageNumber: 20
 
-management:
-  endpoint:
-    shutdown:
-      enabled: true
-
 application:
   schedule:
     delayMinutes: 60
